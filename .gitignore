@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+
+# Build de Next.js
+.next/
+out/
+build/
+
+# Base de datos local SQLite
+prisma/*.db
+prisma/*.db-journal
+
+# Variables de entorno (se sube .env.example, nunca .env)
+.env
+.env*.local
+
+# Archivos del sistema y TypeScript
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts

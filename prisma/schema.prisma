@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id             String   @id @default(cuid())
+  name           String
+  category       String   // Ej: "4ta", "5ta", "6ta", "7ma"
+  favoriteRacket String   // Ej: "Babolat Air Viper 2025", "Adidas Metalbone"
+  points         Int      @default(0)
+  wins           Int      @default(0)
+  losses         Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relaciones inversas desambiguadas (4 posiciones posibles en un partido 2 vs 2)
+  matchesAsTeamAP1 Match[] @relation("TeamAPlayer1")
+  matchesAsTeamAP2 Match[] @relation("TeamAPlayer2")
+  matchesAsTeamBP1 Match[] @relation("TeamBPlayer1")
+  matchesAsTeamBP2 Match[] @relation("TeamBPlayer2")
+
+  @@index([points(sort: Desc), wins(sort: Desc)])
+  @@index([category])
+}
+
+model Match {
+  id               String   @id @default(cuid())
+  teamA_player1_id String
+  teamA_player2_id String
+  teamB_player1_id String
+  teamB_player2_id String
+  setsTeamA        Int
+  setsTeamB        Int
+  exactScore       String   // Ej: "6-4, 4-6, 7-6"
+  date             DateTime @default(now())
+  location         String   // Ej: "La Ribera Pádel Club - Formosa"
+  createdAt        DateTime @default(now())
+
+  // Relaciones explícitas hacia Player
+  teamAPlayer1 Player @relation("TeamAPlayer1", fields: [teamA_player1_id], references: [id], onDelete: Restrict)
+  teamAPlayer2 Player @relation("TeamAPlayer2", fields: [teamA_player2_id], references: [id], onDelete: Restrict)
+  teamBPlayer1 Player @relation("TeamBPlayer1", fields: [teamB_player1_id], references: [id], onDelete: Restrict)
+  teamBPlayer2 Player @relation("TeamBPlayer2", fields: [teamB_player2_id], references: [id], onDelete: Restrict)
+
+  @@index([date(sort: Desc)])
+  @@index([teamA_player1_id])
+  @@index([teamA_player2_id])
+  @@index([teamB_player1_id])
+  @@index([teamB_player2_id])
+}
